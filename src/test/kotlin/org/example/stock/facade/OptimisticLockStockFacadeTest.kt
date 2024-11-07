@@ -1,4 +1,4 @@
-package org.example.stock.service
+package org.example.stock.facade
 
 import org.assertj.core.api.Assertions.assertThat
 import org.example.stock.domain.Stock
@@ -11,13 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import kotlin.jvm.optionals.getOrNull
 
 @SpringBootTest
-class StockServiceTest {
+class OptimisticLockStockFacadeTest {
 
     @Autowired
-    private lateinit var stockService: PessimisticLockStockService
+    private lateinit var optimisticLockStockFacade: OptimisticLockStockFacade
 
     @Autowired
     private lateinit var stockJpaRepository: StockJpaRepository
@@ -32,21 +31,6 @@ class StockServiceTest {
         stockJpaRepository.deleteAllInBatch()
     }
 
-    @DisplayName("재고를 감소한다.")
-    @Test
-    fun decrease() {
-        // given
-        val stockId = 1L
-        val quantity = 1L
-
-        // when
-        stockService.decrease(stockId, quantity)
-
-        // then
-        val savedStock = stockJpaRepository.findById(stockId).orElseThrow()
-        assertThat(savedStock.quantity).isEqualTo(99L)
-    }
-
     @DisplayName("100번의 재고 감소 요청이 있는 경우, 재고는 0이 된다.")
     @Test
     fun decreaseMultipleConcurrentCall() {
@@ -59,7 +43,7 @@ class StockServiceTest {
         for (i in 0 until threadCount) {
             executorService.submit {
                 try {
-                    stockService.decrease(1L, 1L)
+                    optimisticLockStockFacade.decrease(1L, 1L)
                 } finally {
                     latch.countDown()
                 }

@@ -1,16 +1,16 @@
 package org.example.stock.service
 
-import jakarta.transaction.Transactional
 import org.example.stock.repository.StockJpaRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class StockService (
     private val stockJpaRepository: StockJpaRepository
 ){
 
-    @Synchronized
-//    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
      fun decrease(id: Long, quantity: Long) {
         val stock = stockJpaRepository.findById(id).orElseThrow()
 
