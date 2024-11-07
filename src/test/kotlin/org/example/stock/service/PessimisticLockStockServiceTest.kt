@@ -11,13 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import kotlin.jvm.optionals.getOrNull
 
 @SpringBootTest
-class StockServiceTest {
+class PessimisticLockStockServiceTest {
 
     @Autowired
-    private lateinit var stockService: PessimisticLockStockService
+    private lateinit var pessimisticLockStockService: PessimisticLockStockService
 
     @Autowired
     private lateinit var stockJpaRepository: StockJpaRepository
@@ -40,7 +39,7 @@ class StockServiceTest {
         val quantity = 1L
 
         // when
-        stockService.decrease(stockId, quantity)
+        pessimisticLockStockService.decrease(stockId, quantity)
 
         // then
         val savedStock = stockJpaRepository.findById(stockId).orElseThrow()
@@ -59,7 +58,7 @@ class StockServiceTest {
         for (i in 0 until threadCount) {
             executorService.submit {
                 try {
-                    stockService.decrease(1L, 1L)
+                    pessimisticLockStockService.decrease(1L, 1L)
                 } finally {
                     latch.countDown()
                 }
