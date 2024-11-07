@@ -4,11 +4,16 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Version
 
 @Entity
 class Stock(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
+
+    @Version
+    val version: Long? = null,
+
     val productId: Long,
     var quantity: Long,
 ) {

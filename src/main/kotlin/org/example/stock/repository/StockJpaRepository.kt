@@ -11,4 +11,8 @@ interface StockJpaRepository : JpaRepository<Stock, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Stock s where s.id = :id")
     fun findByIdWithPessimisticLock(id: Long): Stock
+
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("select s from Stock s where s.id = :id")
+    fun findByIdWithOptimisticLock(id: Long): Stock
 }
