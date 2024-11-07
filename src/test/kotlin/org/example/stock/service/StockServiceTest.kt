@@ -17,7 +17,7 @@ import kotlin.jvm.optionals.getOrNull
 class StockServiceTest {
 
     @Autowired
-    private lateinit var stockService: StockService
+    private lateinit var stockService: PessimisticLockStockService
 
     @Autowired
     private lateinit var stockJpaRepository: StockJpaRepository
