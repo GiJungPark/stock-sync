@@ -121,6 +121,8 @@ Optimistic Lock CPU 점유율: 최대 53.43%
 
 - 충돌이 빈번하게 발생하는 경우, Pessimistic Lock을 사용했을 때 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
 
+<br>
+
 #### 충돌이 적은 경우
 <img width="700" alt="Pessimistic 충돌 적음" src="https://github.com/user-attachments/assets/19528bc6-4407-4cd9-a148-146a9d649b18">
 
@@ -200,6 +202,8 @@ Redisson의 CPU 점유율: 최대 3.52%
 
 - 재고 감소 로직의 처리 시간이 짧고 대기 상태가 적다. 
   - Lettuce: 대기 시간이 짧고 자원을 빨리 얻을 수 있기 때문에, 충돌이 적게 발생하게 되어 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
+
+<br>
 
 #### 재고 감소의 로직이 느릴 때 (수행 시간을 1초 가량 증가 시킴)
 <img width="700" alt="Lettuce 메서드 실행시간이 오래 걸리는 경우" src="https://github.com/user-attachments/assets/8a34416a-af9f-4f58-a6db-92b3e26b5d42">
