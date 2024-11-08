@@ -104,19 +104,39 @@
 ### Pessimistic & Optimistic 부하 테스트
 #### 충돌이 많은 경우
 <img width="700" alt="Pessimistic" src="https://github.com/user-attachments/assets/c6e27e93-d210-405f-84d3-0c5020d9fb30">
-Pessimistic Lock CPU 점유율: 최대 15.23% 
+
+<br>
+
+Pessimistic Lock CPU 점유율: 최대 15.23%
+
+<br>
 
 <img width="700" alt="Optimistic" src="https://github.com/user-attachments/assets/5b3513dc-f892-47c8-8d43-200e69b0f66a">
+
+<br>
+
 Optimistic Lock CPU 점유율: 최대 53.43%
+
+<br>
 
 - 충돌이 빈번하게 발생하는 경우, Pessimistic Lock을 사용했을 때 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
 
 #### 충돌이 적은 경우
 <img width="700" alt="Pessimistic 충돌 적음" src="https://github.com/user-attachments/assets/19528bc6-4407-4cd9-a148-146a9d649b18">
+
+<br>
+
 Pessimistic Lock CPU 점유율: 최대 22.11% 
 
+<br>
+
 <img width="700" alt="Optimistic 충돌 적음" src="https://github.com/user-attachments/assets/84b493b7-d892-46aa-bba0-d5bb0e176e54">
+
+<br>
+
 Optimistic Lock CPU 점유율: 최대 13.68%
+
+<br>
 
 - 충돌 발생이 적은 경우, Optimistic Lock을 사용했을 때 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
 
@@ -163,20 +183,40 @@ Optimistic Lock CPU 점유율: 최대 13.68%
 ### Lettuce & Redisson 부하 비교 테스트
 #### 재고 감소 로직이 빠를 때
 <img width="700" alt="Lettuce" src="https://github.com/user-attachments/assets/9cbb5fac-e9a4-46c5-ba54-0cae7085b762">
+
+<br>
+
 Lettuce의 CPU 점유율: 최대 2.74%
 
+<br>
+
 <img width="700" alt="Redisson" src="https://github.com/user-attachments/assets/5b1199c6-8f65-462a-a028-cca7f4838d11">
+
+<br>
+
 Redisson의 CPU 점유율: 최대 3.52%
+
+<br>
 
 - 재고 감소 로직의 처리 시간이 짧고 대기 상태가 적다. 
   - Lettuce: 대기 시간이 짧고 자원을 빨리 얻을 수 있기 때문에, 충돌이 적게 발생하게 되어 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
 
 #### 재고 감소의 로직이 느릴 때 (수행 시간을 1초 가량 증가 시킴)
 <img width="700" alt="Lettuce 메서드 실행시간이 오래 걸리는 경우" src="https://github.com/user-attachments/assets/8a34416a-af9f-4f58-a6db-92b3e26b5d42">
+
+<br>
+
 Lettuce의 CPU 점유율: 최대 10.83%
 
+<br>
+
 <img width="700" alt="Redisson 메서드 실행 시간이 오래 걸리는 경우" src="https://github.com/user-attachments/assets/31a84417-ed77-4277-86b6-92cec76fa27a">
+
+<br>
+
 Redisson의 CPU 점유율: 최대 2.29%
+
+<br>
 
 - 재고 감소 로직의 실행 시간이 늘어나면서 대기 상태에 놓이는 일이 빈번해진다.
 - 해당 경우에는 대기 상태에 놓이는 일이 빈번하게 발생하기 때문에 Lettuce의 평균 CPU 점유율과, 최대 CPU 점유율이 더 높은 것을 확인 할 수 있다.
