@@ -101,6 +101,8 @@
 - 별도의 Lock 획득과 해제 로직이 필요하다.
 - Transaction과 별개로 Lcok이 관리되므로, Lock 해제 누락에 주의해야 한다.
 
+<br>
+
 ### Pessimistic & Optimistic 부하 테스트
 #### 충돌이 많은 경우
 <img width="700" alt="Pessimistic" src="https://github.com/user-attachments/assets/c6e27e93-d210-405f-84d3-0c5020d9fb30">
