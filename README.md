@@ -101,10 +101,84 @@
 - 별도의 Lock 획득과 해제 로직이 필요하다.
 - Transaction과 별개로 Lcok이 관리되므로, Lock 해제 누락에 주의해야 한다.
 
+### Pessimistic & Optimistic 부하 테스트
+#### 충돌이 많은 경우
+<img width="700" alt="Pessimistic" src="https://github.com/user-attachments/assets/c6e27e93-d210-405f-84d3-0c5020d9fb30">
+Pessimistic Lock CPU 점유율: 최대 15.23% 
+
+<img width="700" alt="Optimistic" src="https://github.com/user-attachments/assets/5b3513dc-f892-47c8-8d43-200e69b0f66a">
+Optimistic Lock CPU 점유율: 최대 53.43%
+
+- 충돌이 빈번하게 발생하는 경우, Pessimistic Lock을 사용했을 때 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
+
+#### 충돌이 적은 경우
+<img width="700" alt="Pessimistic 충돌 적음" src="https://github.com/user-attachments/assets/19528bc6-4407-4cd9-a148-146a9d649b18">
+Pessimistic Lock CPU 점유율: 최대 22.11% 
+
+<img width="700" alt="Optimistic 충돌 적음" src="https://github.com/user-attachments/assets/84b493b7-d892-46aa-bba0-d5bb0e176e54">
+Optimistic Lock CPU 점유율: 최대 13.68%
+
+- 충돌 발생이 적은 경우, Optimistic Lock을 사용했을 때 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
+
 <br>
 
-## [Redis]()
+## [Redis](https://github.com/GiJungPark/stock-sync/pull/4)
+### [Lettuce](https://github.com/GiJungPark/stock-sync/pull/4/commits/4f1f645f552053e2f737ec9d29a508fd30366cdc)
+#### 정의
+- 고성능, 확장 가능, 쓰레드 안전한 Redis 자바 클라이언트이다.
+- 동기와 비동기 통신을 모두 지원한다.
+
+#### 상세 내용
+- SETNX 명령어를 활용하여, 분산락을 구현한다.
+  - SENTX 명령어: "SET if Not Exists"의 약자로, 주어진 키가 존재하지 않을 때만 값을 설정한다.
+- Lock을 흭득할 때 까지 대기하며, Lock을 흭득하면 재고 감소 메서드를 수행하고 Lock을 반납한다.
+
+#### 장점
+- 구현이 간단하다.
+  - Spring Data Redis를 이용하면 Lettuce가 기본이기 때문에, 별도의 라이브러리를 사용하지 않아도 된다.
+
+#### 단점
+- Spin Lock 방식이므로, 동시에 많은 쓰레드가 Lock 흭득 대기 상태라면 Redis에 부하가 갈 수 있다.
+  - Spin Lock: Race Condition 상황에서 Critical section에 진입 불가능할 때, 진입이 가능할 때까지 루프를 돌면서 재시도하는 방식
 
 <br>
 
-## MySQL vs Redis
+### [Redisson](https://github.com/GiJungPark/stock-sync/pull/4/commits/86e0a7a19cac6b674a537972a234c6ec6f0826a1)
+#### 정의
+- 분산락 구현을 위한 다양한 기능을 제공하는 Redis 자바 클라이언트이다.
+- Lock 흭득 재시도를 기본적으로 제공한다.
+
+#### 상세 내용
+- RedissonClient을 사용하여 Lock을 흭득하고 재고 감소 메서드를 수행하고 Lock을 반납한다.
+
+#### 장점
+- pub-sub 방식으로 구현되어 있기 때문에, Lettuce에 비해 Redis 부하가 덜 간다.
+  - pub-sub 방식: 메시지를 발행(Publish)하고 구독(Subscribe)하는 방식
+
+#### 단점
+- 별도의 라이브러리를 사용해야 하며, Lock을 라이브러리에서 지원해주기 때문에 사용법을 학습해야 한다.
+
+<br>
+
+### Lettuce & Redisson 부하 비교 테스트
+#### 재고 감소 로직이 빠를 때
+<img width="700" alt="Lettuce" src="https://github.com/user-attachments/assets/9cbb5fac-e9a4-46c5-ba54-0cae7085b762">
+Lettuce의 CPU 점유율: 최대 2.74%
+
+<img width="700" alt="Redisson" src="https://github.com/user-attachments/assets/5b1199c6-8f65-462a-a028-cca7f4838d11">
+Redisson의 CPU 점유율: 최대 3.52%
+
+- 재고 감소 로직의 처리 시간이 짧고 대기 상태가 적다. 
+  - Lettuce: 대기 시간이 짧고 자원을 빨리 얻을 수 있기 때문에, 충돌이 적게 발생하게 되어 CPU 점유율이 상대적으로 낮은 것을 확인할 수 있다.
+
+#### 재고 감소의 로직이 느릴 때 (수행 시간을 1초 가량 증가 시킴)
+<img width="700" alt="Lettuce 메서드 실행시간이 오래 걸리는 경우" src="https://github.com/user-attachments/assets/8a34416a-af9f-4f58-a6db-92b3e26b5d42">
+Lettuce의 CPU 점유율: 최대 10.83%
+
+<img width="700" alt="Redisson 메서드 실행 시간이 오래 걸리는 경우" src="https://github.com/user-attachments/assets/31a84417-ed77-4277-86b6-92cec76fa27a">
+Redisson의 CPU 점유율: 최대 2.29%
+
+- 재고 감소 로직의 실행 시간이 늘어나면서 대기 상태에 놓이는 일이 빈번해진다.
+- 해당 경우에는 대기 상태에 놓이는 일이 빈번하게 발생하기 때문에 Lettuce의 평균 CPU 점유율과, 최대 CPU 점유율이 더 높은 것을 확인 할 수 있다.
+  - Lettuce: 기다려야 하는 시간이 길어지면서 CPU 점유율이 급격히 증가한 것을 확인할 수 있다.
+  - Redisson: Pub-Sub 방식으로 동기화가 이루어지기 때문에, CPU 점유율이 낮은 것을 확인할 수 있다.
